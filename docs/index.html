@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Name in Landscapes</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f7f3eb;
+      color: #1c1917;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .page {
+      width: min(1500px, calc(100% - 24px));
+      margin: 0 auto;
+      padding: 34px 0 44px;
+    }
+
+    header {
+      max-width: 760px;
+      margin: 0 auto 28px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      color: #78716c;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(36px, 6vw, 76px);
+      letter-spacing: -0.055em;
+      line-height: 0.95;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 0 auto 30px;
+      flex-wrap: wrap;
+    }
+
+    input {
+      width: min(100%, 460px);
+      border: 1px solid #e7e5e4;
+      border-radius: 18px;
+      background: white;
+      padding: 15px 18px;
+      color: #1c1917;
+      font-size: 22px;
+      text-align: center;
+      outline: none;
+      text-transform: uppercase;
+      box-shadow: 0 12px 30px rgba(28, 25, 23, 0.06);
+    }
+
+    input:focus { border-color: #1c1917; }
+
+    button {
+      border: 0;
+      border-radius: 18px;
+      background: #1c1917;
+      padding: 14px 18px;
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 12px 30px rgba(28, 25, 23, 0.12);
+    }
+
+    button:hover { opacity: 0.92; }
+
+    .panel {
+      margin-top: 24px;
+      border: 1px solid #e7e5e4;
+      border-radius: 28px;
+      background: rgba(255,255,255,0.78);
+      padding: 22px;
+      box-shadow: 0 18px 48px rgba(28, 25, 23, 0.06);
+    }
+
+    .row-scroll {
+      overflow-x: auto;
+      overflow-y: visible;
+      padding: 44px 0 34px;
+      width: 100%;
+    }
+
+    .letters-row {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 22px;
+      width: max-content;
+      min-width: 100%;
+      justify-content: flex-start;
+      padding: 0 4px 8px;
+    }
+
+    .letter-card {
+      width: 310px;
+      flex: 0 0 auto;
+      border-radius: 24px;
+      background: white;
+      border: 1px solid #e7e5e4;
+      box-shadow: 0 14px 32px rgba(28, 25, 23, 0.10);
+      transition:
+        transform 260ms cubic-bezier(.16, 1, .3, 1),
+        box-shadow 260ms cubic-bezier(.16, 1, .3, 1),
+        filter 260ms cubic-bezier(.16, 1, .3, 1);
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .letter-card:hover {
+      transform: translateY(-24px) scale(1.025);
+      box-shadow: 0 34px 70px rgba(28, 25, 23, 0.22);
+      filter: saturate(1.05) contrast(1.02);
+      z-index: 20;
+    }
+
+    .letter-title {
+      padding: 13px 16px 8px;
+      font-size: 28px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .letter-card img {
+      width: 100%;
+      height: 430px;
+      object-fit: contain;
+      display: block;
+      background: #ddd6ce;
+    }
+
+    .caption {
+      padding: 14px 16px 16px;
+    }
+
+    .place {
+      font-size: 14px;
+      line-height: 1.35;
+      font-weight: 800;
+    }
+
+    .coords {
+      margin-top: 7px;
+      color: #44403c;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .coords a {
+      color: #1c1917;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .download-letter {
+      width: 100%;
+      margin-top: 12px;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 13px;
+      box-shadow: none;
+    }
+
+    .stitched-area {
+      width: 100%;
+      overflow-x: auto;
+      text-align: center;
+      padding: 8px 0 18px;
+    }
+
+    #stitchedCanvas {
+      display: inline-block;
+      height: auto;
+      background: #ddd6ce;
+      box-shadow: 0 18px 48px rgba(28, 25, 23, 0.14);
+      vertical-align: top;
+    }
+
+    .stitched-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 18px;
+    }
+
+    .empty {
+      width: 100%;
+      padding: 56px 18px;
+      border: 1px dashed #d6d3d1;
+      border-radius: 20px;
+      text-align: center;
+      color: #78716c;
+      background: rgba(255,255,255,0.6);
+    }
+
+    footer {
+      max-width: 720px;
+      margin: 32px auto 0;
+      color: #78716c;
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      background: rgba(0,0,0,0.82);
+      z-index: 999;
+      padding: 24px;
+      cursor: zoom-out;
+    }
+
+    .modal.open {
+      display: grid;
+    }
+
+    .modal img {
+      max-width: min(96vw, 1400px);
+      max-height: 94vh;
+      object-fit: contain;
+      display: block;
+      background: #ddd6ce;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.45);
+      cursor: default;
+    }
+
+    @media (max-width: 700px) {
+      .letter-card { width: 260px; }
+      .letter-card img { height: 360px; }
+    }
+  
+    /* Mobile polish */
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    .row-scroll,
+    .stitched-area {
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+    }
+
+    .letters-row {
+      scroll-snap-type: x proximity;
+    }
+
+    .letter-card {
+      scroll-snap-align: center;
+    }
+
+    @media (hover: none) {
+      .letter-card:hover {
+        transform: none;
+        box-shadow: 0 14px 32px rgba(28, 25, 23, 0.10);
+        filter: none;
+      }
+
+      .letter-card:active {
+        transform: scale(0.985);
+      }
+
+      button:hover {
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .page {
+        width: calc(100% - 14px);
+        padding: 22px 0 34px;
+      }
+
+      header {
+        margin-bottom: 22px;
+      }
+
+      .eyebrow {
+        font-size: 10px;
+        letter-spacing: 0.18em;
+      }
+
+      h1 {
+        font-size: clamp(34px, 11vw, 58px);
+      }
+
+      .controls {
+        width: 100%;
+        gap: 8px;
+        margin-bottom: 18px;
+      }
+
+      input {
+        width: 100%;
+        font-size: 20px;
+        padding: 14px 16px;
+      }
+
+      .controls button {
+        width: 100%;
+      }
+
+      .panel {
+        border-radius: 22px;
+        padding: 12px;
+        margin-top: 14px;
+      }
+
+      .row-scroll {
+        padding: 18px 0 18px;
+      }
+
+      .letters-row {
+        gap: 14px;
+        padding: 0 4px 8px;
+      }
+
+      .letter-card {
+        width: min(78vw, 300px);
+        border-radius: 20px;
+      }
+
+      .letter-title {
+        font-size: 24px;
+        padding: 12px 14px 8px;
+      }
+
+      .letter-card img {
+        height: clamp(300px, 95vw, 430px);
+      }
+
+      .caption {
+        padding: 12px 14px 14px;
+      }
+
+      .place {
+        font-size: 13px;
+      }
+
+      .coords {
+        font-size: 11px;
+      }
+
+      .download-letter {
+        padding: 12px;
+      }
+
+      .stitched-area {
+        padding: 4px 0 12px;
+      }
+
+      #stitchedCanvas {
+        max-height: 62vh;
+      }
+
+      .stitched-actions {
+        margin-top: 12px;
+      }
+
+      .stitched-actions button {
+        width: 100%;
+      }
+
+      footer {
+        margin-top: 22px;
+        padding: 0 8px;
+      }
+
+      .modal {
+        padding: 10px;
+      }
+
+      .modal img {
+        max-width: 96vw;
+        max-height: 90vh;
+        border-radius: 12px;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <div class="eyebrow">Real places. Real letters.</div>
+      <h1>Your Name in Landscapes</h1>
+    </header>
+
+    <section class="controls">
+      <input id="nameInput" value="" maxlength="24" autocomplete="off" placeholder="Enter name" />
+      <button id="shuffleButton" type="button">Shuffle</button>
+    </section>
+
+    <section class="panel">
+      <div class="row-scroll">
+        <div id="lettersRow" class="letters-row">
+          <div class="empty">Type a name to begin.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="stitched-area">
+        <canvas id="stitchedCanvas"></canvas>
+      </div>
+
+      <div class="stitched-actions">
+        <button id="downloadStripButton" type="button">Download Stitched Picture</button>
+      </div>
+    </section>
+
+    <footer>
+      Satellite imagery courtesy of NASA / USGS Landsat. This project is not affiliated with or endorsed by NASA.
+    </footer>
+  </main>
+
+  <div id="modal" class="modal">
+    <img id="modalImg" src="" alt="" />
+  </div>
+
+  <script>
+    const input = document.getElementById("nameInput");
+    const lettersRow = document.getElementById("lettersRow");
+    const shuffleButton = document.getElementById("shuffleButton");
+    const downloadStripButton = document.getElementById("downloadStripButton");
+    const stitchedCanvas = document.getElementById("stitchedCanvas");
+    const ctx = stitchedCanvas.getContext("2d");
+    const modal = document.getElementById("modal");
+    const modalImg = document.getElementById("modalImg");
+
+    let LETTER_IMAGES = {};
+    let shuffleSeed = 0;
+    let selectedLetters = [];
+
+    function getStitchHeight() {
+      return window.matchMedia("(max-width: 700px)").matches ? 480 : 760;
+    }
+
+    function normalizeName(value) {
+      return value.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 24);
+    }
+
+    function pickImage(letter, index) {
+      const options = LETTER_IMAGES[letter] || [];
+      if (!options.length) return null;
+      return options[(index + shuffleSeed) % options.length];
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function safeName(value) {
+      return normalizeName(value).toLowerCase() || "name";
+    }
+
+    function loadImage(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+      });
+    }
+
+    async function imageToBlobUrl(src) {
+      const response = await fetch(src);
+      const blob = await response.blob();
+      return URL.createObjectURL(blob);
+    }
+
+    async function downloadOriginalImage(src, filename) {
+      const response = await fetch(src);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.click();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function downloadCanvas(canvas, filename) {
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }, "image/png");
+    }
+
+    async function renderStitchedCanvas() {
+      const entries = selectedLetters.filter(x => x.item);
+
+      if (!entries.length) {
+        stitchedCanvas.width = 1;
+        stitchedCanvas.height = 1;
+        stitchedCanvas.style.width = "1px";
+        stitchedCanvas.style.height = "1px";
+        return;
+      }
+
+      const stitchHeight = getStitchHeight();
+
+      const loaded = [];
+
+      for (const entry of entries) {
+        const img = await loadImage(entry.item.image);
+        const width = Math.round((img.width / img.height) * stitchHeight);
+        loaded.push({ img, width });
+      }
+
+      const totalWidth = loaded.reduce((sum, item) => sum + item.width, 0);
+
+      stitchedCanvas.width = totalWidth;
+      stitchedCanvas.height = stitchHeight;
+
+      ctx.clearRect(0, 0, totalWidth, stitchHeight);
+      ctx.fillStyle = "#ddd6ce";
+      ctx.fillRect(0, 0, totalWidth, stitchHeight);
+
+      let x = 0;
+      for (const item of loaded) {
+        ctx.drawImage(item.img, x, 0, item.width, stitchHeight);
+        x += item.width;
+      }
+
+      stitchedCanvas.style.width = totalWidth + "px";
+      stitchedCanvas.style.height = stitchHeight + "px";
+    }
+
+    function coordsHtml(item) {
+      if (!item.coordinates) return "";
+      if (item.map) {
+        return `<a href="${escapeHtml(item.map)}" target="_blank" rel="noopener">${escapeHtml(item.coordinates)}</a>`;
+      }
+      return escapeHtml(item.coordinates);
+    }
+
+    async function openImageModal(src) {
+      modalImg.src = await imageToBlobUrl(src);
+      modal.classList.add("open");
+    }
+
+    function closeModal() {
+      if (modalImg.src.startsWith("blob:")) {
+        URL.revokeObjectURL(modalImg.src);
+      }
+
+      modal.classList.remove("open");
+      modalImg.src = "";
+    }
+
+    function render() {
+      const name = normalizeName(input.value);
+
+      if (input.value !== name) {
+        input.value = name;
+      }
+
+      lettersRow.innerHTML = "";
+      selectedLetters = [];
+
+      if (!name.length) {
+        lettersRow.innerHTML = `<div class="empty">Type a name to begin.</div>`;
+        renderStitchedCanvas();
+        return;
+      }
+
+      [...name].forEach((letter, index) => {
+        const item = pickImage(letter, index);
+        selectedLetters.push({ letter, item });
+
+        if (!item) {
+          lettersRow.insertAdjacentHTML("beforeend", `<div class="empty">No image for ${letter}</div>`);
+          return;
+        }
+
+        lettersRow.insertAdjacentHTML("beforeend", `
+          <article class="letter-card" data-index="${index}">
+            <div class="letter-title">${letter}</div>
+            <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.place || "Letter image")}" />
+            <div class="caption">
+              <div class="place">${escapeHtml(item.place || "Letter image")}</div>
+              <div class="coords">${item.coordinates ? coordsHtml(item) : ""}</div>
+              <button class="download-letter" type="button" data-index="${index}">Download Image</button>
+            </div>
+          </article>
+        `);
+      });
+
+      document.querySelectorAll(".letter-card").forEach(card => {
+        card.addEventListener("click", event => {
+          if (event.target.tagName === "BUTTON" || event.target.tagName === "A") return;
+          const index = Number(card.dataset.index);
+          const item = selectedLetters[index].item;
+          openImageModal(item.image);
+        });
+      });
+
+      document.querySelectorAll(".download-letter").forEach(button => {
+        button.addEventListener("click", event => {
+          event.stopPropagation();
+          const index = Number(button.dataset.index);
+          const entry = selectedLetters[index];
+
+          downloadOriginalImage(
+            entry.item.image,
+            `${safeName(input.value)}-${entry.letter.toLowerCase()}-${index + 1}.png`
+          );
+        });
+      });
+
+      renderStitchedCanvas();
+    }
+
+    fetch("./letterImages.json")
+      .then(response => response.json())
+      .then(data => {
+        LETTER_IMAGES = data;
+      })
+      .catch(error => {
+        lettersRow.innerHTML = `<div class="empty">Could not load letterImages.json</div>`;
+        console.error(error);
+      });
+
+    input.addEventListener("input", () => {
+      input.value = normalizeName(input.value);
+      render();
+    });
+
+    input.addEventListener("paste", event => {
+      event.preventDefault();
+      const pasted = (event.clipboardData || window.clipboardData).getData("text");
+      input.value = normalizeName(pasted);
+      render();
+    });
+
+    input.addEventListener("keydown", event => {
+      const allowed = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Home", "End", "Tab"];
+      if (allowed.includes(event.key)) return;
+
+      if (!/^[a-zA-Z]$/.test(event.key)) {
+        event.preventDefault();
+      }
+    });
+
+    shuffleButton.addEventListener("click", () => {
+      shuffleSeed += 1;
+      render();
+    });
+
+    downloadStripButton.addEventListener("click", () => {
+      downloadCanvas(stitchedCanvas, `${safeName(input.value)}-stitched-picture.png`);
+    });
+
+
+    let resizeTimer;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(renderStitchedCanvas, 160);
+    });
+
+    modal.addEventListener("click", closeModal);
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeModal();
+    });
+  </script>
+</body>
+</html>
