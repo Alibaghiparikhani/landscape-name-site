@@ -491,7 +491,9 @@
       ) {
         return value;
       }
-      return value.replace(/^\/+/, "");
+
+      const clean = value.replace(/^\/+/, "");
+      return new URL(clean, window.location.href).href;
     }
 
     function loadImage(src) {
@@ -658,7 +660,7 @@
       renderStitchedCanvas();
     }
 
-    fetch("./letterImages.json")
+    fetch("./letterImages.json?v=3")
       .then(response => response.json())
       .then(data => {
         LETTER_IMAGES = data;
